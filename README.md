@@ -50,7 +50,7 @@ npx supabase db push
 
 La migrazione `supabase/migrations/202610220001_initial_schema.sql` crea le tabelle, i vincoli, le policy RLS, il bucket privato e i limiti per le ricevute. `TUO_PROJECT_REF` è il riferimento progetto mostrato nelle impostazioni Supabase. Controlla l’elenco migrazioni prima di confermare il push.
 
-4. Configura **Authentication → URL Configuration** con l’URL locale `http://localhost:3000` e, dopo il deploy, con l’URL Vercel di produzione e gli eventuali domini di anteprima che intendi usare.
+4. Configura **Authentication → URL Configuration** con l’URL locale `http://localhost:3000` e, dopo il deploy, con l’URL Vercel di produzione e gli eventuali domini di anteprima che intendi usare. Il recupero password torna alla home app: aggiungi `http://localhost:3000/**` e `https://TUO-DOMINIO-VERCEL/**` agli **Additional Redirect URLs**.
 5. In **Authentication → Users**, invita gli account agenti. Al primo accesso il trigger crea un profilo con ruolo `agent`. Imposta nome e cognome del profilo in **SQL Editor** usando l’ID auth corretto:
 
 ```sql
@@ -108,6 +108,7 @@ Le nuove migrazioni vanno aggiunte in `supabase/migrations/` e applicate al prog
 ## Ambito implementato e punti da completare prima dell’uso operativo
 
 - Inclusi login, dashboard agente/amministratore, inserimento e cancellazione spese, allegato privato, riepilogo totale, invio nota, approvazione/rifiuto/richiesta integrazioni/riapertura, filtro periodo/stato e export CSV.
+- Incluso recupero password via email Supabase: dalla pagina login si richiede un link e si sceglie la password nuova. Richiede redirect URL configurati e invio email Auth funzionante.
 - Nuovi account sono provisionati tramite Supabase Auth; il ruolo è un profilo con policy RLS. Le impostazioni e categorie sono nel database ma per questa versione si modificano dal dashboard/SQL Supabase.
 - L’app non è ancora un sistema certificato o verificato per produzione. Prima dei dati reali esegui test RLS con due utenti agenti e un admin, verifica la policy storage e configura backup/database retention nel progetto Supabase.
 - La recupero password self-service, gestione agenti/categorie dentro l’app, report annuali avanzati e notifiche email sono evoluzioni da completare. Il link di assistenza login è predisposto via email amministrativa.
