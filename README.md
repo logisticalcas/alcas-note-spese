@@ -90,14 +90,17 @@ Apri `http://localhost:3000`. Verifica con almeno due account agente che ognuno 
 1. Apri il repository GitHub e fai **Add file → Upload files**. Carica o sostituisci questi file mantenendo i percorsi:
    - `app/page.tsx`
    - `app/style.css`
-   - `components/operations.tsx` (nuovo)
-   - `supabase/migrations/202610230001_operations_and_fleet.sql` (nuovo)
-   - `supabase/functions/invite-agent/index.ts` (nuovo)
+   - `components/operations.tsx`
+   - `package.json`
+   - `tsconfig.json`
+   - `supabase/migrations/202610230002_agent_test_mode.sql` (solo se non è già nel repository)
+   - `supabase/migrations/202610230003_deletion_policies.sql` (nuovo)
+   - `supabase/functions/agent-test-access/index.ts` (nuova funzione)
    - `README.md`
 2. Premi **Commit changes** sulla branch `main`. Vercel avvierà il deploy automatico dai file aggiornati.
-3. Questa versione aggiunge lo schema incrementale in `supabase/migrations/202610230001_operations_and_fleet.sql`. Poiché lo schema iniziale è già stato eseguito manualmente, apri questo nuovo file su GitHub, copia tutto il contenuto e incollalo una sola volta nel **Supabase → SQL Editor → New query**, poi premi **Run**. Non eseguire di nuovo lo schema iniziale.
-4. Pubblica l’invito agenti da **Supabase → Edge Functions → Deploy a new function → Via Editor**. Crea `invite-agent`, incolla il contenuto di `supabase/functions/invite-agent/index.ts`, imposta il secret `APP_ORIGIN` con il dominio Vercel e distribuisci la funzione. La Dashboard Supabase consente di creare e pubblicare funzioni direttamente dal browser ([guida ufficiale](https://supabase.com/docs/guides/functions/quickstart-dashboard)).
-5. In **Supabase → Authentication → URL Configuration**, aggiungi il dominio Vercel agli URL di redirect consentiti.
+3. La migrazione `202610230001_operations_and_fleet.sql` e quella `202610230002_agent_test_mode.sql` contengono rispettivamente flotta e modalità test. Se una non è ancora stata applicata, eseguila prima. Poi apri `supabase/migrations/202610230003_deletion_policies.sql` su GitHub, copia tutto il contenuto e incollalo in **Supabase → SQL Editor → New query → Run**. Esegui questa nuova migrazione una sola volta e non rilanciare lo schema iniziale.
+4. In **Supabase → Edge Functions → Deploy a new function → Via Editor**, crea `agent-test-access`, incolla il contenuto di `supabase/functions/agent-test-access/index.ts` e distribuiscila. La funzione `invite-agent` già usata per invitare gli agenti non va sostituita. La Dashboard permette di distribuire le funzioni dal browser ([guida ufficiale](https://supabase.com/docs/guides/functions/quickstart-dashboard)).
+5. Il deploy Vercel partirà dopo il commit GitHub. Include il download ZIP di riepilogo e ricevute, i controlli di eliminazione e gli aggiornamenti per smartphone. In Supabase **Authentication → URL Configuration**, verifica che il dominio Vercel sia tra gli URL consentiti.
 
 Le anagrafiche iniziali sono Fabio Scognamiglio, Emanuele Santaniello e Gianluca Giordano. Inserisci le email degli agenti e completa targa, marca e modello dei veicoli dalla pagina amministratore. I dati mancanti non sono stati inventati.
 
@@ -105,7 +108,8 @@ Dal menu **Report carburante** l’amministratore può registrare i rifornimenti
 
 ## Ambito implementato e punti da completare prima dell’uso operativo
 
-- Inclusi login, dashboard agente/amministratore, spese con note e ospiti per la rappresentanza, allegati privati, massimali, revisione, CSV, gestione agenti/account/ruoli, auto aziendali, report chilometrici e registro delle transazioni carburante.
+- Inclusi login, dashboard agente/amministratore, spese con note e ospiti per la rappresentanza, allegati privati, massimali e revisione. L’esportazione ZIP contiene riepilogo CSV e ricevute del mese selezionato. Sono presenti eliminazioni con conferma per note, spese, report, veicoli, transazioni e anagrafiche non collegate; gli account con storico vengono disattivati invece di essere rimossi. La navigazione e i moduli sono adattati agli schermi smartphone.
+- La modalità amministrativa “Prova come Agente Test” apre una seconda scheda con dati separati; ogni nuovo avvio pulisce soltanto i dati di prova precedenti.
 - Incluso recupero password via email Supabase: dalla pagina login si richiede un link e si sceglie la password nuova. Richiede redirect URL configurati e invio email Auth funzionante.
 - Nuovi account sono provisionati tramite Supabase Auth. L’admin gestisce dal portale anagrafiche, inviti, collegamento profili, ruoli, categorie, veicoli e massimali.
 - L’app non è ancora un sistema certificato o verificato per produzione. Prima dei dati reali esegui test RLS con due utenti agenti e un admin, verifica la policy storage e configura backup/database retention nel progetto Supabase.
