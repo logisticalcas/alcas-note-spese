@@ -1,6 +1,6 @@
 # ALCAS NOTE SPESE
 
-Applicazione Next.js + Supabase per note spese agenti. Interfaccia italiana, palette blu scuro, sessioni email/password, permessi RLS, ricevute private (JPG/PNG/PDF fino a 10 MB), revisione, CSV e registro delle modifiche principali. Il modulo Auto Aziendali resta disattivato.
+Applicazione Next.js + Supabase per note spese agenti. Interfaccia italiana, palette blu scuro, sessioni email/password, permessi RLS, ricevute private (JPG/PNG/PDF fino a 10 MB), revisione e CSV. Include gestione agenti/account, categorie, massimali, veicoli aziendali, report chilometrici e registro delle transazioni carburante.
 
 ## Requisiti
 
@@ -48,25 +48,17 @@ npx supabase link --project-ref TUO_PROJECT_REF
 npx supabase db push
 ```
 
-La migrazione `supabase/migrations/202610220001_initial_schema.sql` crea le tabelle, i vincoli, le policy RLS, il bucket privato e i limiti per le ricevute. `TUO_PROJECT_REF` è il riferimento progetto mostrato nelle impostazioni Supabase. Controlla l’elenco migrazioni prima di confermare il push.
+Lo schema iniziale crea le tabelle e le policy. Se lo hai già lanciato manualmente nel SQL Editor, non rilanciarlo: applica solo la migrazione aggiuntiva descritta in **Procedura di aggiornamento**.
 
 4. Configura **Authentication → URL Configuration** con l’URL locale `http://localhost:3000` e, dopo il deploy, con l’URL Vercel di produzione e gli eventuali domini di anteprima che intendi usare. Il recupero password torna alla home app: aggiungi `http://localhost:3000/**` e `https://TUO-DOMINIO-VERCEL/**` agli **Additional Redirect URLs**.
-5. In **Authentication → Users**, invita gli account agenti. Al primo accesso il trigger crea un profilo con ruolo `agent`. Imposta nome e cognome del profilo in **SQL Editor** usando l’ID auth corretto:
-
-```sql
-update public.profiles
-set first_name = 'Nome', last_name = 'Cognome'
-where id = 'UUID_UTENTE';
-```
-
-Promuovi l’account amministratore solo dopo aver verificato l’UUID del proprietario:
+5. In **Authentication → Users**, invita gli account agenti. Al primo accesso il trigger crea un profilo con ruolo `agent`. Promuovi una sola volta l’amministratore iniziale in **SQL Editor**, dopo aver verificato l’UUID dell’account:
 
 ```sql
 update public.profiles set role = 'admin'
 where id = 'UUID_AMMINISTRATORE';
 ```
 
-Non promuovere un utente tramite dati di registrazione inviati dal browser. Gli agenti devono essere invitati dall’amministratore; disattiva la registrazione pubblica non necessaria in **Authentication → Settings**.
+Dopo l’accesso amministratore, usa la pagina **Agenti** per collegare profili già esistenti, assegnare i ruoli e gestire gli account. Non promuovere un utente tramite dati inviati dal browser. Disattiva la registrazione pubblica non necessaria in **Authentication → Settings**.
 
 6. Configura `.env.local` (crealo da `.env.example`):
 
@@ -93,25 +85,31 @@ Apri `http://localhost:3000`. Verifica con almeno due account agente che ognuno 
 4. Copia il dominio Vercel e aggiungilo in Supabase **Authentication → URL Configuration**. Imposta il Site URL sul dominio di produzione e aggiungi redirect URL per localhost, dominio di produzione e anteprime realmente utilizzate.
 5. Dopo ogni modifica a una variabile d’ambiente, avvia un nuovo deploy: i deploy già creati non ricevono i nuovi valori.
 
-## Procedura di aggiornamento
+## Pubblicare gli aggiornamenti usando GitHub online
 
-Modifica il codice localmente, prova `npm run build`, poi:
+1. Apri il repository GitHub e fai **Add file → Upload files**. Carica o sostituisci questi file mantenendo i percorsi:
+   - `app/page.tsx`
+   - `app/style.css`
+   - `components/operations.tsx` (nuovo)
+   - `supabase/migrations/202610230001_operations_and_fleet.sql` (nuovo)
+   - `supabase/functions/invite-agent/index.ts` (nuovo)
+   - `README.md`
+2. Premi **Commit changes** sulla branch `main`. Vercel avvierà il deploy automatico dai file aggiornati.
+3. Questa versione aggiunge lo schema incrementale in `supabase/migrations/202610230001_operations_and_fleet.sql`. Poiché lo schema iniziale è già stato eseguito manualmente, apri questo nuovo file su GitHub, copia tutto il contenuto e incollalo una sola volta nel **Supabase → SQL Editor → New query**, poi premi **Run**. Non eseguire di nuovo lo schema iniziale.
+4. Pubblica l’invito agenti da **Supabase → Edge Functions → Deploy a new function → Via Editor**. Crea `invite-agent`, incolla il contenuto di `supabase/functions/invite-agent/index.ts`, imposta il secret `APP_ORIGIN` con il dominio Vercel e distribuisci la funzione. La Dashboard Supabase consente di creare e pubblicare funzioni direttamente dal browser ([guida ufficiale](https://supabase.com/docs/guides/functions/quickstart-dashboard)).
+5. In **Supabase → Authentication → URL Configuration**, aggiungi il dominio Vercel agli URL di redirect consentiti.
 
-```powershell
-git add .
-git commit -m "Descrizione modifica"
-git push
-```
+Le anagrafiche iniziali sono Fabio Scognamiglio, Emanuele Santaniello e Gianluca Giordano. Inserisci le email degli agenti e completa targa, marca e modello dei veicoli dalla pagina amministratore. I dati mancanti non sono stati inventati.
 
-Le nuove migrazioni vanno aggiunte in `supabase/migrations/` e applicate al progetto Supabase con `npx supabase db push`. Crea prima un backup e applica le modifiche su un progetto di staging quando si gestiscono dati effettivi.
+Dal menu **Report carburante** l’amministratore può registrare i rifornimenti della carta aziendale e controllare date/orari; i rifornimenti nel fine settimana vengono segnalati. La registrazione si basa sui dati dell’estratto della carta, senza integrazione automatica col fornitore.
 
 ## Ambito implementato e punti da completare prima dell’uso operativo
 
-- Inclusi login, dashboard agente/amministratore, inserimento e cancellazione spese, allegato privato, riepilogo totale, invio nota, approvazione/rifiuto/richiesta integrazioni/riapertura, filtro periodo/stato e export CSV.
+- Inclusi login, dashboard agente/amministratore, spese con note e ospiti per la rappresentanza, allegati privati, massimali, revisione, CSV, gestione agenti/account/ruoli, auto aziendali, report chilometrici e registro delle transazioni carburante.
 - Incluso recupero password via email Supabase: dalla pagina login si richiede un link e si sceglie la password nuova. Richiede redirect URL configurati e invio email Auth funzionante.
-- Nuovi account sono provisionati tramite Supabase Auth; il ruolo è un profilo con policy RLS. Le impostazioni e categorie sono nel database ma per questa versione si modificano dal dashboard/SQL Supabase.
+- Nuovi account sono provisionati tramite Supabase Auth. L’admin gestisce dal portale anagrafiche, inviti, collegamento profili, ruoli, categorie, veicoli e massimali.
 - L’app non è ancora un sistema certificato o verificato per produzione. Prima dei dati reali esegui test RLS con due utenti agenti e un admin, verifica la policy storage e configura backup/database retention nel progetto Supabase.
-- La recupero password self-service, gestione agenti/categorie dentro l’app, report annuali avanzati e notifiche email sono evoluzioni da completare. Il link di assistenza login è predisposto via email amministrativa.
+- Le transazioni della carta carburante vengono inserite dall’amministratore a partire dai dati dell’estratto; al momento non c’è un collegamento automatico al fornitore della carta.
 
 ## Fonti tecniche
 
