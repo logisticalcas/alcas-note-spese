@@ -95,10 +95,11 @@ Apri `http://localhost:3000`. Verifica con almeno due account agente che ognuno 
    - `tsconfig.json`
    - `supabase/migrations/202610230002_agent_test_mode.sql` (solo se non è già nel repository)
    - `supabase/migrations/202610230003_deletion_policies.sql` (nuovo)
+   - `supabase/migrations/202610230004_optional_expense_words.sql` (nuovo)
    - `supabase/functions/agent-test-access/index.ts` (nuova funzione)
    - `README.md`
 2. Premi **Commit changes** sulla branch `main`. Vercel avvierà il deploy automatico dai file aggiornati.
-3. La migrazione `202610230001_operations_and_fleet.sql` e quella `202610230002_agent_test_mode.sql` contengono rispettivamente flotta e modalità test. Se una non è ancora stata applicata, eseguila prima. Poi apri `supabase/migrations/202610230003_deletion_policies.sql` su GitHub, copia tutto il contenuto e incollalo in **Supabase → SQL Editor → New query → Run**. Esegui questa nuova migrazione una sola volta e non rilanciare lo schema iniziale.
+3. Le migrazioni `202610230001_operations_and_fleet.sql` e `202610230002_agent_test_mode.sql` contengono flotta e modalità test. Se non sono ancora state applicate, esegui prima la `001`, poi la `002`. Applica in ordine anche `202610230003_deletion_policies.sql` e `202610230004_optional_expense_words.sql`, ciascuna una sola volta, da **Supabase → SQL Editor → New query → Run**. Non rilanciare lo schema iniziale.
 4. In **Supabase → Edge Functions → Deploy a new function → Via Editor**, crea `agent-test-access`, incolla il contenuto di `supabase/functions/agent-test-access/index.ts` e distribuiscila. La funzione `invite-agent` già usata per invitare gli agenti non va sostituita. La Dashboard permette di distribuire le funzioni dal browser ([guida ufficiale](https://supabase.com/docs/guides/functions/quickstart-dashboard)).
 5. Il deploy Vercel partirà dopo il commit GitHub. Include il download ZIP di riepilogo e ricevute, i controlli di eliminazione e gli aggiornamenti per smartphone. In Supabase **Authentication → URL Configuration**, verifica che il dominio Vercel sia tra gli URL consentiti.
 
@@ -122,3 +123,24 @@ Dal menu **Report carburante** l’amministratore può registrare i rifornimenti
 - [Supabase migrazioni database](https://supabase.com/docs/guides/deployment/database-migrations)
 - [Deploy Git su Vercel](https://vercel.com/docs/git)
 - [Variabili d’ambiente Vercel](https://vercel.com/docs/environment-variables)
+
+## Scadenza mensile, archivio e promemoria email
+
+- Gli agenti non scelgono il mese. Dal giorno 1 al giorno 10 (incluso, fuso `Europe/Rome`) possono completare la nota del mese precedente; dall’11 si apre il mese corrente. Il database applica la stessa regola anche alle modifiche, agli invii e alle eliminazioni delle bozze.
+- L’agente vede lo storico completo e può scaricare ogni nota con il riepilogo e le ricevute. I report delle auto restano archiviati in Supabase; ciascun report si scarica come ZIP con riepilogo, dati chilometrici, importi, orari e allegati caricati.
+- Ogni giorno Vercel controlla se è l’ultimo giorno del mese a Roma e invia il promemoria agli agenti attivi non ancora inviati/in revisione. I promemoria riusciti vengono registrati per impedire duplicati; gli invii falliti possono essere riprovati.
+
+### Attivazione dopo il commit
+
+1. Carica e fai commit di `supabase/migrations/202610260001_monthly_deadline_and_reminders.sql` insieme agli altri file. In Supabase SQL Editor esegui tutto il contenuto della nuova migrazione una sola volta.
+2. In Vercel → **Settings → Environment Variables**, aggiungi per Production (e Preview se vuoi provarlo):
+   - `SUPABASE_SERVICE_ROLE_KEY`: chiave `service_role` del progetto Supabase. È un segreto server, non va mai inserito in una variabile `NEXT_PUBLIC_`.
+   - `CRON_SECRET`: valore casuale lungo. Vercel usa questo valore per autenticare le chiamate cron.
+   - `RESEND_API_KEY`: chiave API Resend.
+   - `REMINDER_FROM_EMAIL`: mittente del dominio verificato in Resend, per esempio `ALCAS NOTE SPESE <note-spese@azienda.it>`.
+   - Verifica anche `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+3. In Resend verifica il dominio mittente e autorizza i record DNS richiesti. Senza dominio verificato o con una chiave non valida le email falliscono; la risposta viene salvata nel log Supabase.
+4. Dopo aver aggiunto le variabili, fai **Redeploy** su Vercel. Il file `vercel.json` configura il controllo giornaliero alle 08:00 UTC (09:00 o 10:00 in Italia secondo l’ora legale); il codice verifica comunque la data locale italiana.
+5. Per un controllo manuale puoi aprire `/api/cron/expense-reminders` solo con un header `Authorization: Bearer <CRON_SECRET>`. Il route risponde senza inviare se non è l’ultimo giorno del mese. Controlla Vercel → **Logs** e la tabella `expense_reminder_log` in Supabase.
+
+I cron Vercel funzionano sui deploy Production e sono pianificati in UTC. L’API email Resend richiede una chiave e un mittente configurato. Riferimenti: [Cron Vercel](https://vercel.com/docs/cron-jobs/manage-cron-jobs), [Email API Resend](https://resend.com/docs/api-reference/emails/send-email).
