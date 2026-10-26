@@ -11,13 +11,25 @@ export function getRomeDateParts(date = new Date()) {
   return { year: value('year'), month: value('month'), day: value('day') }
 }
 
-// Agents work on the previous month through day 10; from day 11 the new
-// calendar month becomes the active expense period.
+// New expenses always belong to the current calendar month from day 1.
 export function getOpenExpensePeriod(date = new Date()): ExpensePeriod {
   const today = getRomeDateParts(date)
-  if (today.day > 10) return { month: today.month, year: today.year }
+  return { month: today.month, year: today.year }
+}
+
+// During days 1–10, agents can still complete and submit last month's note.
+export function getGraceExpensePeriod(date = new Date()): ExpensePeriod | null {
+  const today = getRomeDateParts(date)
+  if (today.day > 10) return null
   const previous = new Date(Date.UTC(today.year, today.month - 2, 1))
   return { month: previous.getUTCMonth() + 1, year: previous.getUTCFullYear() }
+}
+
+export function canEditExpensePeriod(period: ExpensePeriod, date = new Date()) {
+  const current = getOpenExpensePeriod(date)
+  if (period.month === current.month && period.year === current.year) return true
+  const grace = getGraceExpensePeriod(date)
+  return !!grace && period.month === grace.month && period.year === grace.year
 }
 
 export function getExpenseDeadline(month: number, year: number) {
