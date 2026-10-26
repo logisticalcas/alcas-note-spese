@@ -5,6 +5,26 @@
 .page-home #expense-list,.page-home .submitrow,.page-home .review,.page-home #report,.page-home #agent-list,.page-home .settings-panel,.page-home .agent-archive{display:none}.page-expenses .agent-notice,.page-expenses .agent-stats,.page-expenses #agent-list,.page-expenses .admin-stats,.page-expenses .admin-home,.page-expenses #report,.page-expenses .review,.page-expenses .settings-panel{display:none}.page-archive .agent-notice,.page-archive .agent-stats,.page-archive #expense-list,.page-archive .submitrow,.page-archive .review,.page-archive #report{display:none}.page-agents .admin-stats,.page-agents .admin-home,.page-agents #expense-list,.page-agents .review,.page-agents #report,.page-agents .settings-panel{display:none}.page-review .admin-stats,.page-review .admin-home,.page-review #report,.page-review .settings-panel{display:none}.page-stats .admin-home,.page-stats #agent-list,.page-stats #expense-list,.page-stats .review,.page-stats #report,.page-stats .settings-panel{display:none}.page-exports .admin-stats,.page-exports .admin-home,.page-exports #agent-list,.page-exports #expense-list,.page-exports .review,.page-exports .settings-panel{display:none}.page-settings .admin-stats,.page-settings .admin-home,.page-settings #agent-list,.page-settings #expense-list,.page-settings .review,.page-settings #report{display:none}.sidebar nav button{border:0;background:transparent;width:100%;text-align:left;color:#c3cee0;padding:10px 12px;border-radius:8px;font-weight:500;display:flex;align-items:center;gap:10px}.sidebar nav button:hover,.sidebar nav button.on{background:#1a3659;color:white}.sidebar nav button.disabled{opacity:.5;justify-content:space-between;cursor:not-allowed}.quicknote{padding:17px;font-size:12px}.categorygrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:16px}.categorygrid span{border:1px solid var(--line);border-radius:8px;padding:12px;font-size:12px}.categorygrid b{display:block;color:var(--blue);font-size:10px;margin-top:6px}.settings-panel .notice{margin:4px 16px 16px}@media(max-width:700px){.sidebar nav button{width:auto;white-space:nowrap;padding:8px 10px;font-size:11px}.categorygrid{grid-template-columns:repeat(2,1fr)}}
 .panel-empty{display:none}
 .shell-agent .selectors{display:none}
+.test-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.feedback-form fieldset{border:1px solid var(--line);border-radius:9px;padding:12px 14px;margin:0 0 14px}
+.feedback-form legend{font-size:12px;font-weight:700;padding:0 5px}
+.feedback-choice{display:flex;align-items:center;gap:9px;padding:8px 4px;font-size:12px;cursor:pointer}
+.feedback-choice input{accent-color:var(--blue)}
+.feedback-label{display:grid;gap:7px;margin:13px 0;font-size:12px;font-weight:650}
+.feedback-label select,.feedback-label textarea,.feedback-admin input,.feedback-admin select{min-width:0;border:1px solid var(--line);border-radius:8px;padding:10px;background:#fff;color:var(--ink)}
+.feedback-label textarea{resize:vertical;line-height:1.5}
+.feedback-actions{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.feedback-actions small,.feedback-item small{color:var(--muted);font-size:11px}
+.feedback-item{border-top:1px solid var(--line);padding:14px 0}
+.feedback-item-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.feedback-item-head b,.feedback-item-head small{display:block}
+.feedback-item>p{font-size:12px;margin:8px 0 4px}
+.feedback-description{white-space:pre-wrap;overflow-wrap:anywhere}
+.feedback-admin{display:grid;grid-template-columns:minmax(130px,200px) 1fr;gap:8px;margin-top:10px}
+.feedback-reply{margin-top:10px;padding:10px 12px;border-radius:8px;background:#edf3fa;font-size:12px}
+.feedback-reply p{margin:5px 0 0;white-space:pre-wrap}
+.page-feedback .agent-notice,.page-feedback .agent-stats,.page-feedback .admin-stats,.page-feedback .admin-home,.page-feedback #agent-list,.page-feedback #expense-list,.page-feedback .submitrow,.page-feedback .review,.page-feedback .delete-note,.page-feedback .agent-export,.page-feedback .export-panel{display:none}
+@media(max-width:700px){.test-actions{display:grid}.test-actions>*{width:100%;min-height:42px}.feedback-admin{grid-template-columns:1fr}.feedback-actions{align-items:stretch;flex-direction:column}.feedback-actions .primary{min-height:44px}.feedback-item-head{flex-direction:column}}
 .toggle-setting{display:flex;align-items:center;gap:8px;margin:12px 0;font-size:12px;font-weight:650}
 .agent-test-banner{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 18px;padding:13px 16px;border:1px solid #d8b978;border-radius:10px;background:#fff6e4;color:#604315}.agent-test-banner b,.agent-test-banner small{display:block}.agent-test-banner small{margin-top:3px;font-size:11px;color:#806638}
 .page-agents #agent-list{display:none}
