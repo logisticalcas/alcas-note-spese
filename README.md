@@ -126,7 +126,7 @@ Dal menu **Report carburante** l’amministratore può registrare i rifornimenti
 
 ## Scadenza mensile, archivio e promemoria email
 
-- Gli agenti non scelgono il mese. Dal giorno 1 al giorno 10 (incluso, fuso `Europe/Rome`) possono completare la nota del mese precedente; dall’11 si apre il mese corrente. Il database applica la stessa regola anche alle modifiche, agli invii e alle eliminazioni delle bozze.
+- Gli agenti non scelgono il mese. Le spese del mese corrente si registrano dal giorno 1; la bozza del mese precedente si può completare e inoltrare fino al giorno 10 incluso (fuso `Europe/Rome`). Dal giorno 11 quella nota diventa sola lettura. Il database applica la stessa regola alle modifiche e agli invii.
 - L’agente vede lo storico completo e può scaricare ogni nota con il riepilogo e le ricevute. I report delle auto restano archiviati in Supabase; ciascun report si scarica come ZIP con riepilogo, dati chilometrici, importi, orari e allegati caricati.
 - Ogni giorno Vercel controlla se è l’ultimo giorno del mese a Roma e invia il promemoria agli agenti attivi non ancora inviati/in revisione. I promemoria riusciti vengono registrati per impedire duplicati; gli invii falliti possono essere riprovati.
 
@@ -144,3 +144,9 @@ Dal menu **Report carburante** l’amministratore può registrare i rifornimenti
 5. Per un controllo manuale puoi aprire `/api/cron/expense-reminders` solo con un header `Authorization: Bearer <CRON_SECRET>`. Il route risponde senza inviare se non è l’ultimo giorno del mese. Controlla Vercel → **Logs** e la tabella `expense_reminder_log` in Supabase.
 
 I cron Vercel funzionano sui deploy Production e sono pianificati in UTC. L’API email Resend richiede una chiave e un mittente configurato. Riferimenti: [Cron Vercel](https://vercel.com/docs/cron-jobs/manage-cron-jobs), [Email API Resend](https://resend.com/docs/api-reference/emails/send-email).
+
+### Raccolta del mese e accesso Agente Test
+
+- Il mese corrente è registrabile dal giorno 1. Fino al giorno 10 si può anche aprire dall’Archivio la bozza del mese precedente, completarla e inoltrarla. Dal giorno 11 quella nota diventa sola lettura.
+- Dall’area amministratore usa **Crea accesso per il responsabile commerciale** e condividi credenziali e URL mostrati. È lo stesso account isolato `is_test`: non concede privilegi amministrativi. Ogni nuova generazione o avvio della modalità di prova reimposta la password e cancella i soli dati dell’Agente Test.
+- Per feedback e malfunzionamenti applica `202610260002_agent_feedback.sql`; per la regola di raccolta dal primo giorno applica `202610260003_current_month_capture.sql`, dopo le migrazioni precedenti.
