@@ -150,3 +150,4 @@ I cron Vercel funzionano sui deploy Production e sono pianificati in UTC. L’AP
 - Il mese corrente è registrabile dal giorno 1. Fino al giorno 10 si può anche aprire dall’Archivio la bozza del mese precedente, completarla e inoltrarla. Dal giorno 11 quella nota diventa sola lettura.
 - Dall’area amministratore usa **Crea accesso per il responsabile commerciale** e condividi credenziali e URL mostrati. È lo stesso account isolato `is_test`: non concede privilegi amministrativi. Ogni nuova generazione o avvio della modalità di prova reimposta la password e cancella i soli dati dell’Agente Test.
 - Per feedback e malfunzionamenti applica `202610260002_agent_feedback.sql`; per la regola di raccolta dal primo giorno applica `202610260003_current_month_capture.sql`, dopo le migrazioni precedenti.
+- Per visualizzare il profilo amministrativo come “Amministrazione Alcas Italia” applica anche `202610260004_admin_profile_display_name.sql` dopo le precedenti.
